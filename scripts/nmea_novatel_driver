@@ -53,8 +53,8 @@ if __name__ == '__main__':
         driver = libnmea_navsat_driver.driver.RosNMEADriver()
         while not rospy.is_shutdown():
             if initialized:
-                #data = GPS.readline().strip()
-                data = "$GPGGA,134658.00,5106.9792,N,11402.3003,W,2,09,1.0,1048.47,M,-16.27,M,08,AAAA*60"
+                data = GPS.readline().strip()
+                #data = "$GPGGA,134658.00,5106.9792,N,11402.3003,W,2,09,1.0,1048.47,M,-16.27,M,08,AAAA*60"
                 time.sleep(1)
                 try:
                     driver.add_sentence(data, frame_id)

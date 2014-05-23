@@ -1,0 +1,16 @@
+<launch>
+  <!-- NavSat serial comms -->
+  <group ns="gps">
+    <node pkg="capra_gps" type="nmea_novatel_driver" name="nmea_novatel_node" output="screen">
+      <param name="port" value="/dev/ttyUSB0" />
+      <param name="baud" value="9600" />
+    </node>
+
+    <!-- ENU translation --> 
+    <node pkg="enu" type="from_fix" name="enu_from_fix" output="screen">
+      <param name="invalid_covariance_value" value="1000000" />
+      <param name="lock_altitude" value="0"/>
+      <param name="scale_covariance" value="0.05"/>
+    </node>
+  </group>
+</launch>
