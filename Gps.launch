@@ -11,7 +11,7 @@
       <param name="invalid_covariance_value" value="1000000" />
       <param name="lock_altitude" value="0"/>
       <param name="scale_covariance" value="0.05"/>
-      <remap from="enu" to="/vo"/>
+      <remap from="enu" to="/gps"/>
     </node>
   </group>
 </launch>
