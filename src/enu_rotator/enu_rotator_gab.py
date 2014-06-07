@@ -18,21 +18,19 @@ class EnuRotator:
         self.rotated_enu = None
         self.rotation = None
         self.has_new_data = False
-        self.x = 0
-        self.y = 0
-        self.theta = 0
-        self.has_theta = False
+
+
         rospy.init_node('enu_rotator')
 
     def publish_loop(self):
         while not rospy.is_shutdown():
-            if self.has_theta and self.has_new_data:
+            if self.rotated_enu is not None and self.has_new_data:
                 odom = Odometry()
 
                 odom.header.frame_id = "odom"
                 odom.header.stamp = rospy.get_rostime()
-                odom.pose.pose.position.y = self.y#-self.rotated_enu.tolist()[0][0]
-                odom.pose.pose.position.x = self.x#-self.rotated_enu.tolist()[0][1]
+                odom.pose.pose.position.x = self.rotated_enu.tolist()[0][0]
+                odom.pose.pose.position.y = self.rotated_enu.tolist()[0][1]
                 odom.pose.pose.orientation.w = 1
                 odom.child_frame_id = "base_link"
                 self.has_new_data = False
@@ -41,20 +39,20 @@ class EnuRotator:
                 time.sleep(1.0 / 1000)
 
     def enu_callback(self, msg):
-        if self.has_theta:
-            x = msg.pose.pose.position.x
-            y = msg.pose.pose.position.y
-            d = math.sqrt(math.pow(x, 2) + math.pow(y, 2))
-            self.y = math.cos(self.theta) * d
-            self.x = -math.sin(self.theta) * d
+        if self.rotation is not None:
+            self.rotated_enu = numpy.matrix([msg.pose.pose.position.x, msg.pose.pose.position.y]) * self.rotation
             self.has_new_data = True
 
     def imu_callback(self, msg):
         o = msg.orientation
         r, p, y = tf.transformations.euler_from_quaternion([o.x, o.y, o.z, o.w])
-        self.theta = -(y + math.pi)
-        self.has_theta = True
-#       
+        theta = (180.0 / math.pi) * y
+        print theta
+        if(theta > 0):
+            self.rotation = numpy.matrix([[math.cos((180.0 / math.pi) * y), -math.sin((180.0 / math.pi) * y)], [math.sin((180.0 / math.pi) * y), math.cos((180.0 / math.pi) * y)]])
+        else:
+            self.rotation = numpy.matrix([[math.cos((180.0 / math.pi) * y), math.sin((180.0 / math.pi) * y)], [-math.sin((180.0 / math.pi) * y), math.cos((180.0 / math.pi) * y)]])
+
 
 if __name__ == '__main__':
     er = EnuRotator()
