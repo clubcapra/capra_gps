@@ -30,8 +30,8 @@ class EnuRotator:
         while rotated_point is None:
             if self.rotation is not None:
                 rotated_point = numpy.matrix([req.point.pose.pose.position.x, req.point.pose.pose.position.y]) * self.rotation
-                response.rotated.pose.pose.position.x = -rotated_point.tolist()[0][1]
-                response.rotated.pose.pose.position.y = rotated_point.tolist()[0][0]
+                response.rotated.pose.pose.position.x = -rotated_point.tolist()[0][1] / 10
+                response.rotated.pose.pose.position.y = rotated_point.tolist()[0][0] / 10
 
         return response
 

@@ -17,7 +17,7 @@ class WaypointOrientation:
         self.sensitivity = rospy.get_param('~sensitivity', 1.5)
         self.next_waypoint = None
         self.position = None
-        self.next_waypoint_publisher = rospy.Publisher("/next_waypoint", Pose)
+        self.next_waypoint_publisher = rospy.Publisher("next_waypoint", Pose)
         self.robot_pose_subscriber = rospy.Subscriber('/robot_pose_ekf/odom', PoseWithCovarianceStamped, self._kalman_listener)
 
         f = open(rospy.get_param('~file'), 'rt')
@@ -26,7 +26,7 @@ class WaypointOrientation:
 
             for waypoint in reader:
                 for coord in waypoint:
-                    self.waypoints.append(coord.split(';'))
+                    self.waypoints.append([float(c.strip()) for c in coord.split(';')])
         finally:
             f.close()
 
@@ -37,13 +37,13 @@ class WaypointOrientation:
                 if self.position is not None:
                     if self.next_waypoint is None or (self.position.pose.pose.position.x - self.next_waypoint.position.x) ** 2 + (self.position.pose.pose.position.y - self.next_waypoint.position.y) ** 2 < self.sensitivity ** 2:
                         waypoint = self.waypoints.pop(0)
-
+                        
                         rotate = rospy.ServiceProxy('/gps/rotate', Rotate)
                         request = RotateRequest()
                         request.point.pose.pose.position.x = waypoint[0]
                         request.point.pose.pose.position.y = waypoint[1]
                         response = rotate(request)
-
+                        
                         self.next_waypoint = Pose()
                         self.next_waypoint.position.x = response.rotated.pose.pose.position.x
                         self.next_waypoint.position.y = response.rotated.pose.pose.position.y
@@ -54,7 +54,6 @@ class WaypointOrientation:
                     self.next_waypoint.orientation.y = quaternion[1]
                     self.next_waypoint.orientation.z = quaternion[2]
                     self.next_waypoint.orientation.w = quaternion[3]
-
                     self.next_waypoint_publisher.publish(self.next_waypoint)
             r.sleep()
 
