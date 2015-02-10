@@ -56,6 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   Rotate.srv
+  AddLatlongGoal.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -69,6 +70,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   nav_msgs
+  sensor_msgs
 )
 
 ###################################
